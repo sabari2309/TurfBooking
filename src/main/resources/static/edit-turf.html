@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Turf</title>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+    <style>
+        body { background: #111; color: white; }
+        .edit-box {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 60px;
+        }
+    </style>
+</head>
+
+<body class="container">
+
+<h2 class="text-warning text-center mt-4">✏ Edit Turf</h2>
+
+<div class="edit-box">
+    <form id="editForm">
+
+        <div class="mb-3">
+            <label class="form-label">Turf Name</label>
+            <input type="text" class="form-control" id="turfName" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Price per Hour</label>
+            <input type="number"
+                   class="form-control"
+                   id="turfPrice"
+                   required
+                   min="1"
+                   step="0.01"
+                   oninput="if(this.value < 1) this.value='';">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Sport Type</label>
+            <select class="form-select" id="sportType">
+                <option value="Football">⚽ Football</option>
+                <option value="Cricket">🏏 Cricket</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Location</label>
+            <select class="form-select" id="location">
+                <option value="Chennai">Chennai</option>
+                <option value="Bengaluru">Bengaluru</option>
+                <option value="Hyderabad">Hyderabad</option>
+                <option value="Pune">Pune</option>
+                <option value="Mumbai">Mumbai</option>
+                <option value="Delhi">Delhi</option>
+                <option value="Kolkata">Kolkata</option>
+                <option value="Coimbatore">Coimbatore</option>
+                <option value="Madurai">Madurai</option>
+                <option value="Chandigarh">Chandigarh</option>
+            </select>
+
+        </div>
+
+        <button type="submit" class="btn btn-success w-100">Update Turf</button>
+        <button type="button" class="btn btn-danger w-100 mt-2" onclick="goBack()">Cancel</button>
+    </form>
+</div>
+
+<script>
+    const BASE_URL = "http://localhost:8082/turfs";
+    const turfId = localStorage.getItem("editTurfId");
+
+    if (!turfId) {
+        alert("No turf selected for edit!");
+        window.location.href = "admin.html";
+    }
+
+    // Load Turf Data
+    fetch(`${BASE_URL}/${turfId}`)
+        .then(res => res.json())
+        .then(turf => {
+            document.getElementById("turfName").value = turf.name;
+            document.getElementById("sportType").value = turf.sportType;
+            document.getElementById("location").value = turf.location;
+            document.getElementById("turfPrice").value=turf.price;
+        });
+
+    // Update Turf
+    document.getElementById("editForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const updatedTurf = {
+            name: document.getElementById("turfName").value,
+            sportType: document.getElementById("sportType").value,
+            location: document.getElementById("location").value,
+            price:document.getElementById("turfPrice").value
+        };
+
+        fetch(`${BASE_URL}/${turfId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedTurf)
+        })
+        .then(async res => {
+            const txt = await res.text();
+            console.log(txt);
+
+            if(res.ok){
+                alert("Turf updated successfully!");
+                localStorage.removeItem("editTurfId");
+                window.location.href = "admin.html";
+            } else {
+                alert("Update failed!");
+            }
+        });
+    });
+
+    function goBack(){
+        window.location.href = "admin.html";
+    }
+</script>
+
+</body>
+</html>

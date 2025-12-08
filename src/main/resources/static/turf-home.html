@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Turf Home</title>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+    <style>
+        body {
+            background: url("https://images.pexels.com/photos/399187/pexels-photo-399187.jpeg") no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            position: relative;
+            color: white;
+        }
+        body::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+        }
+        .content { position: relative; z-index: 2; }
+        .header-box {
+            background: rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 15px 20px;
+            backdrop-filter: blur(7px);
+        }
+        .turf-card {
+            background: rgba(255,255,255,0.10);
+            border-radius: 14px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.25);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+        .turf-card:hover {
+            transform: scale(1.06);
+            background: rgba(255,255,255,0.20);
+        }
+    </style>
+</head>
+
+<body class="p-4">
+
+<div class="content">
+    <div class="d-flex justify-content-between align-items-center header-box mb-4">
+        <h3>Welcome, <span id="username"></span> 👋</h3>
+
+        <div class="d-flex gap-2">
+            <button class="btn btn-warning" onclick="goToProfile()">Profile</button>
+            <button class="btn btn-danger" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <h4>Select Sport Type:</h4>
+    <select id="sportSelect" class="form-select w-50 mb-4" onchange="onSportChange()">
+        <option value="" disabled selected>Select Sport</option>
+        <option value="Football">⚽ Football</option>
+        <option value="Cricket">🏏 Cricket</option>
+    </select>
+
+    <h4 class="mt-3">🏟 Available Turfs</h4>
+    <div id="turfList" class="mt-3 row"></div>
+</div>
+
+
+<!-- TERMS MODAL -->
+<div class="modal fade" id="termsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content text-dark">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">Terms & Conditions</h5>
+            </div>
+            <div class="modal-body">
+                <p>✔ No refund after booking.</p>
+                <p>✔ Property damage will be charged.</p>
+                <p>✔ Max 20 members per slot.</p>
+                <p>✔ Must maintain discipline inside venue.</p>
+
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" id="agreeCheck">
+                    <label class="form-check-label">I agree to the terms & conditions</label>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="logout()">Exit</button>
+                <button class="btn btn-success" onclick="acceptTerms()">Accept & Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const BASE_URL = "http://localhost:8082/turfs";
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("username").innerText = localStorage.getItem("userName");
+
+        // Show modal only if user has NOT agreed yet
+        if (!localStorage.getItem("acceptedTerms")) {
+            const modal = new bootstrap.Modal(document.getElementById("termsModal"));
+            modal.show();
+        }
+    });
+
+    function acceptTerms() {
+        if (!document.getElementById("agreeCheck").checked) {
+            alert("⚠ Please agree to continue.");
+            return;
+        }
+
+        localStorage.setItem("acceptedTerms", "true");
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById("termsModal"))
+                     || new bootstrap.Modal(document.getElementById("termsModal"));
+        modal.hide();
+    }
+
+    function onSportChange() {
+        if (!localStorage.getItem("acceptedTerms")) {
+            alert("⚠ Please accept the terms & conditions first.");
+            return;
+        }
+        const sport = document.getElementById("sportSelect").value;
+        loadTurfs(sport);
+    }
+
+    function loadTurfs(sport) {
+        fetch(`${BASE_URL}/type/${sport}`)
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById("turfList");
+                container.innerHTML = "";
+
+                if (data.length === 0) {
+                    container.innerHTML = `<p class="text-warning mt-3">No turfs available for this sport.</p>`;
+                    return;
+                }
+
+                data.forEach(turf => {
+                    container.innerHTML += `
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="turf-card" onclick="bookTurf(${turf.id},${turf.price})">
+                                <h5>${turf.name}</h5>
+                                <p>📍 ${turf.location}</p>
+                                <p>🎯 ${turf.sportType}</p>
+                                <p>₹ ${turf.price}</p>
+                            </div>
+                        </div>`;
+                });
+            });
+    }
+
+    function bookTurf(turfId,turfprice) {
+        if (!localStorage.getItem("acceptedTerms")) {
+            alert("⚠ Please accept terms before booking.");
+            return;
+        }
+        localStorage.setItem("selectedTurf", turfId);
+        localStorage.setItem("Hourlyprice",turfprice);
+        window.location.href = "turf-booking.html";
+    }
+
+    function goToProfile() {
+        window.location.href = "profile.html";
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+    }
+</script>
+
+</body>
+</html>
