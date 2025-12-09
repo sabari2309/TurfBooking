@@ -57,9 +57,10 @@
            class="form-control mb-2"
            placeholder="Email"
            required
-           pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-           title="Please enter a valid email (e.g., user@example.com)">
-<!--    <input id="email" type="email" class="form-control mb-2" placeholder="Email">-->
+           pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$"
+           title="Enter a valid email address, e.g., example@gmail.com">
+
+    <!--    <input id="email" type="email" class="form-control mb-2" placeholder="Email">-->
     <input id="password" type="password" class="form-control mb-3" placeholder="Password">
 
     <button class="btn btn-success w-100" onclick="login()">Login</button>
