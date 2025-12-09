@@ -18,7 +18,8 @@ public class OtpService {
         String otp = String.valueOf((int)(Math.random() * 900000) + 100000);
         otpStore.put(email, otp);
 
-        Email from = new Email("yourappemail@gmail.com");
+        // MUST MATCH SENDGRID VERIFIED SENDER
+        Email from = new Email("sabareeswarangopal@gmail.com");
         Email to = new Email(email);
         String subject = "Your OTP Verification Code";
         Content content = new Content("text/plain", "Your OTP is: " + otp);
