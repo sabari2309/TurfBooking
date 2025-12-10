@@ -22,7 +22,10 @@
 </head>
 
 <body class="p-4">
-
+<div id="notifyBox"
+     class="alert text-center d-none"
+     style="position:absolute; top:20px; width:90%; max-width:420px; z-index:999;">
+</div>
 <div class="container">
     <h2 class="mb-4 text-warning">⚙ Admin Panel - Turf Management</h2>
 
@@ -99,10 +102,13 @@
 
 <script>
     const BASE_URL = "https://turfbooking-production.up.railway.app/turfs";
-
+    function showMessage(type, msg) {
+        const box = document.getElementById("notifyBox");
+        box.className = `alert alert-${type} text-center`;
+        box.innerHTML = msg;
+        box.classList.remove("d-none");
+    }
     document.addEventListener("DOMContentLoaded", fetchTurfs);
-
-    // Add Turf
     document.getElementById("turfForm").addEventListener("submit", function (event) {
         event.preventDefault();
 
@@ -124,18 +130,17 @@
             console.log("Server:", text);
 
             if(res.ok){
-                alert("Turf Added Successfully!");
+                showMessage("success","Turf Added Successfully!");
                 fetchTurfs();
                 document.getElementById("turfForm").reset();
             } else {
-                alert("Failed to add turf!");
+                showMessage("danger","Failed to add turf!");
             }
         });
 
-    }); // <-- FIXED: closing missing bracket here ✅
+    });
 
 
-    // Load All Turfs
     function fetchTurfs() {
         fetch(`${BASE_URL}`)
             .then(res => res.json())
@@ -167,12 +172,11 @@
 
         fetch(`${BASE_URL}/${id}`, { method: "DELETE" })
             .then(() => {
-                alert("Turf Deleted!");
+                showMessage("success","Turf Deleted!");
                 fetchTurfs();
             });
     }
 
-    // Edit Turf (Redirect)
     function editTurf(id) {
         localStorage.setItem("editTurfId", id);
         window.location.href = "edit-turf.html";

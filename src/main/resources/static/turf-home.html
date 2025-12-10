@@ -43,7 +43,10 @@
 </head>
 
 <body class="p-4">
-
+<div id="notifyBox"
+     class="alert text-center d-none"
+     style="position:absolute; top:20px; width:90%; max-width:420px; z-index:999;">
+</div>
 <div class="content">
     <div class="d-flex justify-content-between align-items-center header-box mb-4">
         <h3>Welcome, <span id="username"></span> 👋</h3>
@@ -98,12 +101,17 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+    function showMessage(type, msg) {
+        const box = document.getElementById("notifyBox");
+        box.className = `alert alert-${type} text-center`;
+        box.innerHTML = msg;
+        box.classList.remove("d-none");
+    }
     const BASE_URL = "https://turfbooking-production.up.railway.app/turfs";
 
     document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("username").innerText = localStorage.getItem("userName");
 
-        // Show modal only if user has NOT agreed yet
         if (!localStorage.getItem("acceptedTerms")) {
             const modal = new bootstrap.Modal(document.getElementById("termsModal"));
             modal.show();
@@ -112,7 +120,7 @@
 
     function acceptTerms() {
         if (!document.getElementById("agreeCheck").checked) {
-            alert("⚠ Please agree to continue.");
+            showMessage("danger","⚠ Please agree to continue.");
             return;
         }
 
@@ -125,7 +133,7 @@
 
     function onSportChange() {
         if (!localStorage.getItem("acceptedTerms")) {
-            alert("⚠ Please accept the terms & conditions first.");
+            showMessage("danger","⚠ Please accept the terms & conditions first.");
             return;
         }
         const sport = document.getElementById("sportSelect").value;
@@ -160,7 +168,7 @@
 
     function bookTurf(turfId,turfprice) {
         if (!localStorage.getItem("acceptedTerms")) {
-            alert("⚠ Please accept terms before booking.");
+            showMessage("danger","⚠ Please accept terms before booking.");
             return;
         }
         localStorage.setItem("selectedTurf", turfId);

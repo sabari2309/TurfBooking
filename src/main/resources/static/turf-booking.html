@@ -24,6 +24,10 @@
 </head>
 
 <body class="p-4">
+<div id="notifyBox"
+     class="alert text-center d-none"
+     style="position:absolute; top:20px; width:90%; max-width:420px; z-index:999;">
+</div>
 <div class="content">
 
     <h3 id="turfHeader">Booking...</h3>
@@ -39,128 +43,132 @@
 </div>
 
 <script>
-    const turfId = localStorage.getItem("selectedTurf");
-    const userId = localStorage.getItem("userId");
-    const API_URL = "https://turfbooking-production.up.railway.app";
+    function showMessage(type, msg) {
+       const box = document.getElementById("notifyBox");
+       box.className = `alert alert-${type} text-center`;
+       box.innerHTML = msg;
+       box.classList.remove("d-none");
+   }
+   const turfId = localStorage.getItem("selectedTurf");
+   const userId = localStorage.getItem("userId");
+   const API_URL = "https://turfbooking-production.up.railway.app";
 
-    // Price stored from admin panel
-    const BASE_PRICE = Number(localStorage.getItem("Hourlyprice"));
+   const BASE_PRICE = Number(localStorage.getItem("Hourlyprice"));
 
-    let userPoints = 0, userWallet = 0;
-    let selectedDate = null, slotToBook = null;
+   let userPoints = 0, userWallet = 0;
+   let selectedDate = null, slotToBook = null;
 
-    fetch(`${API_URL}/turfs/${turfId}`)
-        .then(r => r.json())
-        .then(turf => document.getElementById("turfHeader").innerText = `Booking for: ${turf.name}`);
+   fetch(`${API_URL}/turfs/${turfId}`)
+       .then(r => r.json())
+       .then(turf => document.getElementById("turfHeader").innerText = `Booking for: ${turf.name}`);
 
-    function loadDates() {
-        const container = document.getElementById("dateButtons");
-        const today = new Date();
-        container.innerHTML = "";
+   function loadDates() {
+       const container = document.getElementById("dateButtons");
+       const today = new Date();
+       container.innerHTML = "";
 
-        for (let i = 1; i <= 7; i++) {
-            const date = new Date(today);
-            date.setDate(today.getDate() + i);
-            const formatted = date.toISOString().split("T")[0];
+       for (let i = 1; i <= 7; i++) {
+           const date = new Date(today);
+           date.setDate(today.getDate() + i);
+           const formatted = date.toISOString().split("T")[0];
 
-            container.innerHTML += `<button class="btn btn-outline-light" onclick="selectDate('${formatted}', this)"> ${date.toDateString()} </button>`;
-        }
-    }
-    loadDates();
+           container.innerHTML += `<button class="btn btn-outline-light" onclick="selectDate('${formatted}', this)"> ${date.toDateString()} </button>`;
+       }
+   }
+   loadDates();
 
-    function selectDate(date, btn) {
-        selectedDate = date;
-        document.querySelectorAll("#dateButtons button").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        loadSlots();
-    }
+   function selectDate(date, btn) {
+       selectedDate = date;
+       document.querySelectorAll("#dateButtons button").forEach(b => b.classList.remove("active"));
+       btn.classList.add("active");
+       loadSlots();
+   }
 
-    function loadSlots() {
-        fetch(`${API_URL}/booking/${turfId}/${selectedDate}`)
-            .then(res => res.json())
-            .then(booked => {
-                const bookedSlots = booked.map(x => x.timeSlot);
-                const container = document.getElementById("slots");
-                container.innerHTML = "";
+   function loadSlots() {
+       fetch(`${API_URL}/booking/${turfId}/${selectedDate}`)
+           .then(res => res.json())
+           .then(booked => {
+               const bookedSlots = booked.map(x => x.timeSlot);
+               const container = document.getElementById("slots");
+               container.innerHTML = "";
 
-                const timeSlots = ["6-7 AM","7-8 AM","8-9 AM","9-10 AM","4-5 PM","5-6 PM","6-7 PM","7-8 PM"];
+               const timeSlots = ["6-7 AM","7-8 AM","8-9 AM","9-10 AM","4-5 PM","5-6 PM","6-7 PM","7-8 PM"];
 
-                timeSlots.forEach(slot => {
-                    const taken = bookedSlots.includes(slot);
-                    container.innerHTML += `
-                        <div class="col-6 my-2">
-                            <button class="btn ${taken ? 'btn-secondary' : 'btn-success'} w-100"
-                                ${taken ? 'disabled' : `onclick="askConfirmation('${slot}')"`}>
-                                ${slot} ${taken ? "(Booked)" : ""}
-                            </button>
-                        </div>`;
-                });
-            });
-    }
+               timeSlots.forEach(slot => {
+                   const taken = bookedSlots.includes(slot);
+                   container.innerHTML += `
+                       <div class="col-6 my-2">
+                           <button class="btn ${taken ? 'btn-secondary' : 'btn-success'} w-100"
+                               ${taken ? 'disabled' : `onclick="askConfirmation('${slot}')"`}>
+                               ${slot} ${taken ? "(Booked)" : ""}
+                           </button>
+                       </div>`;
+               });
+           });
+   }
 
-    function askConfirmation(slot) {
-        slotToBook = slot;
-        document.getElementById("confirmSlot").innerText = `${slot} on ${selectedDate}`;
-        new bootstrap.Modal(document.getElementById("confirmModal")).show();
-    }
+   function askConfirmation(slot) {
+       slotToBook = slot;
+       document.getElementById("confirmSlot").innerText = `${slot} on ${selectedDate}`;
+       new bootstrap.Modal(document.getElementById("confirmModal")).show();
+   }
 
-    async function openPayment() {
-        const res = await fetch(`${API_URL}/customers/${userId}`);
-        const data = await res.json();
+   async function openPayment() {
+       const res = await fetch(`${API_URL}/customers/${userId}`);
+       const data = await res.json();
 
-        userPoints = data.points; //0
-        userWallet = data.walletBalance; //1000
+       userPoints = data.points; //0
+       userWallet = data.walletBalance; //1000
 
-        document.getElementById("availablePoints").innerText = userPoints;
-        document.getElementById("availableWallet").innerText = userWallet;
-        document.getElementById("basePrice").innerText = BASE_PRICE;
+       document.getElementById("availablePoints").innerText = userPoints;
+       document.getElementById("availableWallet").innerText = userWallet;
+       document.getElementById("basePrice").innerText = BASE_PRICE;
 
-        updatePayment();
+       updatePayment();
 
-        bootstrap.Modal.getInstance(document.getElementById("confirmModal")).hide();
-        new bootstrap.Modal(document.getElementById("paymentModal")).show();
-    }
+       bootstrap.Modal.getInstance(document.getElementById("confirmModal")).hide();
+       new bootstrap.Modal(document.getElementById("paymentModal")).show();
+   }
 
-    function updatePayment() {
-        let usePoints = Number(document.getElementById("pointsToUse").value);
-        if (usePoints > userPoints) usePoints = userPoints;
+   function updatePayment() {
+       let usePoints = Number(document.getElementById("pointsToUse").value);
+       if (usePoints > userPoints) usePoints = userPoints;
 
-        const discount = usePoints * 20;
-        let payable = Math.max(BASE_PRICE - discount, 0); //1000
+       const discount = usePoints * 20;
+       let payable = Math.max(BASE_PRICE - discount, 0); //1000
 
-        localStorage.setItem("pointsUsed", usePoints);  //0
-        localStorage.setItem("payable", payable);  //1000
+       localStorage.setItem("pointsUsed", usePoints);  //0
+       localStorage.setItem("payable", payable);  //1000
 
-        document.getElementById("discountText").innerText = discount;
-        document.getElementById("payAfterPoints").innerText = payable;
-    }
+       document.getElementById("discountText").innerText = discount;
+       document.getElementById("payAfterPoints").innerText = payable;
+   }
 
-    function finalizeBooking() {
-        const payable = Number(localStorage.getItem("payable"));
+   function finalizeBooking() {
+       const payable = Number(localStorage.getItem("payable"));
 
-        if (userWallet < payable) {
-            alert(`❌ Not enough wallet balance.\nNeed ₹${payable}, You have ₹${userWallet}.\nPlease add money.`);
-            window.location.href = "profile.html";
-            return;
-        }
+       if (userWallet < payable) {
+           showMessage("success",`❌ Not enough wallet balance.\nNeed ₹${payable}, You have ₹${userWallet}.\nPlease add money.<br><a href='profile.html' style='color:#0044ff;'><b>Go to Profile</b></a>`);
+           return;
+       }
 
-        const body = {
-            turfId, userId,
-            date: selectedDate,
-            timeSlot: slotToBook,
-            pointsUsed: Number(localStorage.getItem("pointsUsed")),
-            walletUsed: payable
-        };
+       const body = {
+           turfId, userId,
+           date: selectedDate,
+           timeSlot: slotToBook,
+           pointsUsed: Number(localStorage.getItem("pointsUsed")),
+           walletUsed: payable
+       };
 
-        fetch(`${API_URL}/booking`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
-        }).then(() => {
-            alert("🎉 Booking Successful!");
-            window.location.href = "profile.html";
-        });
-    }
+       fetch(`${API_URL}/booking`, {
+           method: "POST",
+           headers: { "Content-Type": "application/json" },
+           body: JSON.stringify(body)
+       }).then(() => {
+           showMessage("success",`🎉 Booking Successful!`);
+           window.location.href = "profile.html";
+       });
+   }
 </script>
 
 <!-- CONFIRMATION MODAL -->

@@ -27,10 +27,12 @@
 </head>
 
 <body class="p-4">
-
+<div id="notifyBox"
+     class="alert text-center d-none"
+     style="position:absolute; top:20px; width:90%; max-width:420px; z-index:999;">
+</div>
 <div class="container">
 
-    <!-- Top Bar -->
     <div class="top-menu mb-3">
         <h2>👤 Welcome, <span id="userName"></span></h2>
         <button class="btn btn-danger" onclick="logout()">Logout</button>
@@ -79,7 +81,12 @@
     const userId = localStorage.getItem("userId");
     const API_URL = "https://turfbooking-production.up.railway.app";
 
-    // 🚨 Auto redirect if not logged in
+    function showMessage(type, msg) {
+        const box = document.getElementById("notifyBox");
+        box.className = `alert alert-${type} text-center`;
+        box.innerHTML = msg;
+        box.classList.remove("d-none");
+    }
     if (!userId) {
         window.location.replace("login.html");
     }
@@ -122,12 +129,11 @@
         window.location.href = "turf-home.html";
     }
 
-    // 💸 Razorpay wallet recharge
     async function addMoney() {
         const amount = document.getElementById("walletAmount").value;
 
         if (amount <= 0) {
-            alert("⚠ Enter a valid amount");
+            showMessage("danger","⚠ Enter a valid amount");
             return;
         }
 
@@ -156,7 +162,7 @@
                         transactionId: response.razorpay_payment_id
                     })
                 }).then(() => {
-                    alert("🎉 Payment Successful! Wallet Updated!");
+                    showMessage("success","🎉 Payment Successful! Wallet Updated!");
                     document.getElementById("walletAmount").value = "";
                     loadProfile();
                 });
@@ -167,12 +173,10 @@
         rzp.open();
     }
 
-    // 🚪 Secure Logout
     function logout() {
         localStorage.clear();
         sessionStorage.clear();
 
-        // Prevent back access
         history.pushState(null, "", location.href);
         window.onpopstate = function () {
             history.pushState(null, "", location.href);
@@ -181,7 +185,6 @@
         window.location.replace("login.html");
     }
 
-    // Prevent back button hijack
     history.pushState(null, "", location.href);
     window.onpopstate = function () {
         history.pushState(null, "", location.href);

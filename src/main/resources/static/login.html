@@ -44,7 +44,6 @@
 
 <body class="d-flex justify-content-center align-items-center vh-100 p-4">
 
-<!-- Global Notification Box -->
 <div id="notifyBox"
      class="alert text-center d-none"
      style="position:absolute; top:20px; width:90%; max-width:420px; z-index:999;">
@@ -98,7 +97,6 @@
         box.className = `alert alert-${type} text-center`;
         box.innerHTML = msg;
         box.classList.remove("d-none");
-        setTimeout(() => box.classList.add("d-none"), 3000);
     }
 
     function login() {

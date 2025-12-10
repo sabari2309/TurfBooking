@@ -19,7 +19,10 @@
 </head>
 
 <body class="container">
-
+<div id="notifyBox"
+     class="alert text-center d-none"
+     style="position:absolute; top:20px; width:90%; max-width:420px; z-index:999;">
+</div>
 <h2 class="text-warning text-center mt-4">✏ Edit Turf</h2>
 
 <div class="edit-box">
@@ -74,13 +77,17 @@
 <script>
     const BASE_URL = "https://turfbooking-production.up.railway.app/turfs";
     const turfId = localStorage.getItem("editTurfId");
-
+    function showMessage(type, msg) {
+        const box = document.getElementById("notifyBox");
+        box.className = `alert alert-${type} text-center`;
+        box.innerHTML = msg;
+        box.classList.remove("d-none");
+    }
     if (!turfId) {
-        alert("No turf selected for edit!");
+        showMessage("danger","No turf selected for edit!");
         window.location.href = "admin.html";
     }
 
-    // Load Turf Data
     fetch(`${BASE_URL}/${turfId}`)
         .then(res => res.json())
         .then(turf => {
@@ -90,7 +97,6 @@
             document.getElementById("turfPrice").value=turf.price;
         });
 
-    // Update Turf
     document.getElementById("editForm").addEventListener("submit", function(event) {
         event.preventDefault();
 
@@ -111,11 +117,10 @@
             console.log(txt);
 
             if(res.ok){
-                alert("Turf updated successfully!");
+                showMessage("success",`Turf Updated Successfully!<br><a href='admin.html' style='color:#0044ff;'><b>Go Back</b></a>`);
                 localStorage.removeItem("editTurfId");
-                window.location.href = "admin.html";
             } else {
-                alert("Update failed!");
+                showMessage("danger","Update failed!");
             }
         });
     });
