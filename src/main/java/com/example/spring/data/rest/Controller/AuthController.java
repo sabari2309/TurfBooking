@@ -55,6 +55,18 @@ public class AuthController {
         return ResponseEntity.ok(foundUser);
     }
 
+    @GetMapping("/check-email")
+    public ResponseEntity<String> checkEmail(@RequestParam String email) {
+        Optional<User> existingUser = customerRepository.findByEmail(email);
+
+        if (existingUser.isPresent()) {
+            return ResponseEntity.status(400).body("User already exists");
+        }
+
+        return ResponseEntity.ok("Email available");
+    }
+
+
     @GetMapping("/send-email-otp")
     public ResponseEntity<String> sendOtp(@RequestParam String email) {
         Optional<User> existingUser = customerRepository.findByEmail(email);
