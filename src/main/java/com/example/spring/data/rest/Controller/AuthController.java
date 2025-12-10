@@ -55,6 +55,15 @@ public class AuthController {
         return ResponseEntity.ok(foundUser);
     }
 
+    @GetMapping("/mail-exists")
+    public ResponseEntity<String> mailExists(@RequestParam String email){
+        Optional<User> existing=customerRepository.findByEmail(email);
+        if(existing.isEmpty()){
+            return ResponseEntity.status(400).body("User doesn't exists");
+        }
+        return ResponseEntity.ok("User Available");
+    }
+
     @GetMapping("/check-email")
     public ResponseEntity<String> checkEmail(@RequestParam String email) {
         Optional<User> existingUser = customerRepository.findByEmail(email);
