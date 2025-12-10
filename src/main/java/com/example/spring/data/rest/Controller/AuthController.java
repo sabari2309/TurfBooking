@@ -55,16 +55,24 @@ public class AuthController {
         return ResponseEntity.ok(foundUser);
     }
 
-    @PostMapping("/send-otp")
-    public ResponseEntity<String> sendOtp(@RequestBody Map<String, String> request) {
-        String email = request.get("email");
-        return ResponseEntity.ok(otpService.sendOtp(email));
+    @GetMapping("/send-email-otp")
+    public ResponseEntity<String> sendOtp(@RequestParam String email) {
+        Optional<User> existingUser = customerRepository.findByEmail(email);
+
+        if (!existingUser.isEmpty()) {
+            return ResponseEntity.status(404).body("User Already Exists");
+        }
+        String msg = otpService.sendOtp(email);
+        return ResponseEntity.ok(msg);
     }
 
-    @PostMapping("/verify-otp")
-    public ResponseEntity<String> verifyOtp(@RequestBody Map<String, String> request) {
-        if (otpService.verifyOtp(request.get("email"), request.get("otp"))) {
-            return ResponseEntity.ok("Verified");
+    @GetMapping("/verify-email-otp")
+    public ResponseEntity<String> verifyOtp(
+            @RequestParam String email,
+            @RequestParam String otp) {
+        boolean valid = otpService.verifyOtp(email, otp);
+        if (valid) {
+            return ResponseEntity.ok("Email Verified Successfully!");
         }
         return ResponseEntity.status(400).body("Invalid OTP");
     }

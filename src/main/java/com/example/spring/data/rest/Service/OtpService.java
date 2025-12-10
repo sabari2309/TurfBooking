@@ -1,46 +1,63 @@
 package com.example.spring.data.rest.Service;
 
-import com.sendgrid.*;
-import com.sendgrid.helpers.mail.Mail;
-import com.sendgrid.helpers.mail.objects.Content;
-import com.sendgrid.helpers.mail.objects.Email;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 @Service
 public class OtpService {
 
+    @Autowired
+    private JavaMailSender mailSender;
+
+    // Temporary in-memory storage for OTPs
     private final Map<String, String> otpStore = new HashMap<>();
 
+    // ---------------------- SEND OTP ----------------------
     public String sendOtp(String email) {
-        String otp = String.valueOf((int)(Math.random() * 900000) + 100000);
+
+        String otp = generateOtp();
         otpStore.put(email, otp);
 
-        // MUST MATCH SENDGRID VERIFIED SENDER
-        Email from = new Email("sabareeswarangopal@gmail.com");
-        Email to = new Email(email);
-        String subject = "Your OTP Verification Code";
-        Content content = new Content("text/plain", "Your OTP is: " + otp);
-        Mail mail = new Mail(from, subject, to, content);
-
-        SendGrid sg = new SendGrid(System.getenv("SENDGRID_API_KEY"));
-        Request request = new Request();
-
         try {
-            request.setMethod(Method.POST);
-            request.setEndpoint("mail/send");
-            request.setBody(mail.build());
-            sg.api(request);
-            return "OTP sent successfully!";
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            throw new RuntimeException("Failed to send email: " + ex.getMessage());
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(email);
+            message.setSubject("Your Email Verification OTP");
+            message.setText("Your OTP for verification is: " + otp);
+
+            mailSender.send(message);
+
+            return "OTP sent to " + email;
+        }
+        catch (Exception e) {
+            return "Failed to send OTP: " + e.getMessage();
         }
     }
 
+    // ---------------------- VERIFY OTP ----------------------
     public boolean verifyOtp(String email, String otp) {
-        return otp.equals(otpStore.get(email));
+
+        if (!otpStore.containsKey(email)) {
+            return false;
+        }
+
+        boolean isMatch = otpStore.get(email).equals(otp);
+
+        if (isMatch) {
+            otpStore.remove(email); // remove OTP after successful verification
+        }
+
+        return isMatch;
+    }
+
+    // ---------------------- GENERATE OTP ----------------------
+    private String generateOtp() {
+        Random random = new Random();
+        return String.format("%06d", random.nextInt(999999)); // 6-digit OTP
     }
 }
