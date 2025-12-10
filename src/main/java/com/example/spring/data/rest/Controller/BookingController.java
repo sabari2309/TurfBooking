@@ -87,9 +87,12 @@ public class BookingController {
         booking.setWalletUsed(request.getWalletUsed());
         booking.setAmountPaid(request.getWalletUsed());
 
-        bookingRepo.save(booking);
-
-        return ResponseEntity.ok("🎉 Booking Confirmed Successfully! Paid via Wallet: ₹" + walletApplied);
+        try {
+            bookingRepo.save(booking);
+            return ResponseEntity.ok("🎉 Booking Confirmed Successfully!");
+        } catch (Exception e) {
+            return ResponseEntity.status(409).body("❌ Slot already booked by another user.");
+        }
     }
 
 

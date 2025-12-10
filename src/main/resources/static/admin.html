@@ -120,7 +120,7 @@
         box.className = `alert alert-${type} text-center`;
         box.innerHTML = msg;
         box.classList.remove("d-none");
-        setTimeout(() => box.classList.add("d-none"), 3000);
+        setTimeout(() => box.classList.add("d-none"), 6000);
     }
 
     document.addEventListener("DOMContentLoaded", fetchTurfs);
@@ -179,7 +179,6 @@
             });
     }
 
-    // SIMPLE DELETE CONFIRM BOX LOGIC
     let deleteId = null;
 
     function deleteTurf(id) {

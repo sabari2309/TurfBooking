@@ -164,10 +164,21 @@
            method: "POST",
            headers: { "Content-Type": "application/json" },
            body: JSON.stringify(body)
-       }).then(() => {
-           showMessage("success",`🎉 Booking Successful!`);
-           window.location.href = "profile.html";
-       });
+       }).then(async res => {
+            const text = await res.text();
+            console.log("Server:", text);
+
+            if (res.ok) {
+                showMessage("success", "Booked Successfully!");
+                fetchTurfs();
+                document.getElementById("turfForm").reset();
+            } else if(res.status === 409){
+                showMessage("danger", `Slot Already Booked<br><a href='turf-home.html' style='color:#0044ff;'><b>Go Back to selection</b></a>`);
+            } else {
+                showMessage("danger","Error booking.Try Again");
+                return;
+            }
+        });
    }
 </script>
 
