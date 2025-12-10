@@ -20,7 +20,7 @@ public class CorsConfig {
                                 "http://127.0.0.1:5500")
                         .allowedMethods("*")
                         .allowedHeaders("*")
-                        .allowCredentials(true);
+                        .allowCredentials(true); //hello
             }
         };
     }
