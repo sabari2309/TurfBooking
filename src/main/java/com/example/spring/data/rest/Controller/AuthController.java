@@ -69,11 +69,6 @@ public class AuthController {
 
     @GetMapping("/send-email-otp")
     public ResponseEntity<String> sendOtp(@RequestParam String email) {
-        Optional<User> existingUser = customerRepository.findByEmail(email);
-
-        if (!existingUser.isEmpty()) {
-            return ResponseEntity.status(404).body("User Already Exists");
-        }
         String msg = otpService.sendOtp(email);
         return ResponseEntity.ok(msg);
     }
