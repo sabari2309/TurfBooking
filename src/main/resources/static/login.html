@@ -84,6 +84,17 @@
 
 <script>
     const AUTH_URL = "https://turfbooking-production.up.railway.app/auth";
+    function togglePassword(inputId, iconElement) {
+    const input = document.getElementById(inputId);
+
+    if (input.type === "password") {
+        input.type = "text";
+        iconElement.textContent = "🙈";
+    } else {
+        input.type = "password";
+        iconElement.textContent = "👁️";
+    }
+}
 
     function login() {
         const loginReq = {
