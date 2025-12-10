@@ -169,8 +169,11 @@
             console.log("Server:", text);
 
             if (res.ok) {
+                bootstrap.Modal.getInstance(document.getElementById("paymentModal")).hide();
                 showMessage("success", "Booked Successfully!");
-                fetchTurfs();
+                setTimeout(() => {
+                    window.location.href = "profile.html";
+                }, 2000);
                 document.getElementById("turfForm").reset();
             } else if(res.status === 409){
                 showMessage("danger", `Slot Already Booked<br><a href='turf-home.html' style='color:#0044ff;'><b>Go Back to selection</b></a>`);
