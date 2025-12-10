@@ -112,10 +112,8 @@
         box.className = `alert alert-${type} text-center`;
         box.innerHTML = msg;
         box.classList.remove("d-none");
-        setTimeout(() => box.classList.add("d-none"), 3000);
     }
-    let tempUser = {}; // To store user during OTP process
-
+    let tempUser = {};
     function goToOtpScreen(event) {
     event.preventDefault();
 
@@ -130,8 +128,7 @@
             const msg = await res.text();
 
             if (!res.ok) {
-                showMessage("danger","User already exists! Please login.");
-                window.location.href = "login.html";
+                showMessage("danger",`User Already exist!<br><a href='login.html' style='color:#0044ff;'><b>Go to Login Page</b></a>`);
                 return;
             }
 
