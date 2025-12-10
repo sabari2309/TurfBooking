@@ -1,9 +1,9 @@
 package com.example.spring.data.rest.Service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,10 +12,9 @@ import java.util.Random;
 @Service
 public class OtpService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    @Value("${brevo.api.key}")
+    private String brevoApiKey;
 
-    // Temporary in-memory storage for OTPs
     private final Map<String, String> otpStore = new HashMap<>();
 
     // ---------------------- SEND OTP ----------------------
@@ -25,16 +24,30 @@ public class OtpService {
         otpStore.put(email, otp);
 
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(email);
-            message.setSubject("Your Email Verification OTP");
-            message.setText("Your OTP for verification is: " + otp);
+            String url = "https://api.brevo.com/v3/smtp/email";
 
-            mailSender.send(message);
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("api-key", brevoApiKey);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            String body = """
+            {
+              "sender": { "name": "Turf App", "email": "sabareeswarangopal@gmail.com" },
+              "to": [{ "email": "%s" }],
+              "subject": "Your Email Verification OTP",
+              "htmlContent": "<h2>Your OTP is: %s</h2>"
+            }
+            """.formatted(email, otp);
+
+            HttpEntity<String> request = new HttpEntity<>(body, headers);
+
+            RestTemplate rest = new RestTemplate();
+            rest.postForEntity(url, request, String.class);
 
             return "OTP sent to " + email;
         }
         catch (Exception e) {
+            e.printStackTrace();
             return "Failed to send OTP: " + e.getMessage();
         }
     }
@@ -46,10 +59,10 @@ public class OtpService {
             return false;
         }
 
-        boolean isMatch = otpStore.get(email).equals(otp);
+        boolean isMatch = otp.equals(otpStore.get(email));
 
         if (isMatch) {
-            otpStore.remove(email); // remove OTP after successful verification
+            otpStore.remove(email); // OTP used → delete it
         }
 
         return isMatch;
@@ -57,7 +70,6 @@ public class OtpService {
 
     // ---------------------- GENERATE OTP ----------------------
     private String generateOtp() {
-        Random random = new Random();
-        return String.format("%06d", random.nextInt(999999)); // 6-digit OTP
+        return String.format("%06d", new Random().nextInt(1000000));
     }
 }
