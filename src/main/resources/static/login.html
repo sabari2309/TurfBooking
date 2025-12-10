@@ -49,7 +49,10 @@
 </head>
 
 <body class="d-flex justify-content-center align-items-center vh-100 p-4">
-
+<div id="notifyBox"
+     class="alert text-center d-none"
+     style="position:absolute; top:20px; width:90%; max-width:420px; z-index:999;">
+</div>
 <div class="card login-card">
     <h2 class="text-center mb-3">Login</h2>
     <input id="email"
@@ -95,7 +98,13 @@
         iconElement.textContent = "👁️";
     }
 }
-
+   function showMessage(type, msg) {
+        const box = document.getElementById("notifyBox");
+        box.className = `alert alert-${type} text-center`;
+        box.innerHTML = msg;
+        box.classList.remove("d-none");
+        setTimeout(() => box.classList.add("d-none"), 3000);
+    }
     function login() {
         const loginReq = {
             email: document.getElementById("email").value,
@@ -112,24 +121,24 @@
 
     if (res.ok) {
         if (data.role === "ADMIN") {
-            alert("Welcome Admin!");
+            showMessage("success","Welcome Admin");
             window.location.href = "admin.html";
             return;
         }else{
-        alert("Welcome, " + data.name + "!");
+        showMessage("success", "Welcome" + data.name + "!");
         localStorage.setItem("userId", data.id);
         localStorage.setItem("userName", data.name);
         window.location.href = "turf-home.html";
         }
     }
     else if (res.status === 404) {
-        alert("User not found");
+        showMessage("danger","User not found");
     }
     else if (res.status === 401) {
-        alert("Invalid password");
+        showMessage("danger","Invalid password");
     }
     else {
-        alert("Login failed");
+        showMessage("danger","Login failed");
     }
 });
 
