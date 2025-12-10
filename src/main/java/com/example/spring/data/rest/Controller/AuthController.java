@@ -89,4 +89,22 @@ public class AuthController {
         return ResponseEntity.status(400).body("Invalid OTP");
     }
 
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String newPassword = request.get("password");
+
+        Optional<User> user = customerRepository.findByEmail(email);
+
+        if (user.isEmpty()) {
+            return ResponseEntity.status(404).body("User not found");
+        }
+
+        User u = user.get();
+        u.setPassword(newPassword);
+        customerRepository.save(u);
+
+        return ResponseEntity.ok("Password updated successfully!");
+    }
+
 }

@@ -68,4 +68,7 @@ public class User {
     }
 
 
+    public void setPassword(String newPassword) {
+        this.password=newPassword;
+    }
 }
