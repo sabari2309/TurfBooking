@@ -81,6 +81,8 @@
     <!-- 🔍 SEARCH BAR (Hidden initially) -->
     <input type="text" id="searchTurf" class="form-control w-50 mb-3 d-none"
            placeholder="Search turf by name..." onkeyup="filterTurfs()">
+    <input type="text" id="searchLocation" class="form-control w-50 mb-3 d-none"
+           placeholder="Search turf by location..." onkeyup="filterLocation()">
 
     <h4 class="mt-3">🏟 Available Turfs</h4>
     <div id="turfList" class="mt-3 row"></div>
@@ -163,7 +165,8 @@
             .then(res => res.json())
             .then(data => {
                 loadedTurfs = data; // store for filtering
-                document.getElementById("searchTurf").classList.remove("d-none"); // show search
+                document.getElementById("searchTurf").classList.remove("d-none");
+                document.getElementById("searchLocation").classList.remove("d-none");
                 displayTurfs(data);
             });
     }
@@ -196,6 +199,15 @@
 
         const filtered = loadedTurfs.filter(turf =>
             turf.name.toLowerCase().includes(keyword)
+        );
+
+        displayTurfs(filtered);
+    }
+     function filterLocation() {
+        const keyword = document.getElementById("searchLocation").value.toLowerCase();
+
+        const filtered = loadedTurfs.filter(turf =>
+            turf.location.toLowerCase().includes(keyword)
         );
 
         displayTurfs(filtered);
