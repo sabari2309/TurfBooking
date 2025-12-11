@@ -1,3 +1,5 @@
+package com.example.spring.data.rest;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -18,7 +20,7 @@ public class CorsConfig {
                                 "http://127.0.0.1:5500")
                         .allowedMethods("*")
                         .allowedHeaders("*")
-                        .allowCredentials(true);
+                        .allowCredentials(true); //hello
             }
         };
     }
