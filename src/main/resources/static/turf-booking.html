@@ -163,6 +163,7 @@
 
        if (userWallet < payable) {
            showMessage("success",`❌ Not enough wallet balance.\nNeed ₹${payable}, You have ₹${userWallet}.\nPlease add money.<br><a href='profile.html' style='color:#0044ff;'><b>Go to Profile</b></a>`);
+           bootstrap.Modal.getInstance(document.getElementById("paymentModal")).hide();
            return;
        }
 
