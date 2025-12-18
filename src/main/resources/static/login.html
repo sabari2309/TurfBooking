@@ -135,6 +135,7 @@
 
                 if (data.role === "ADMIN") {
                     showMessage("success", "Welcome Admin!");
+                    localStorage.setItem("role",data.role);
                     setTimeout(() => window.location.href = "admin.html", 1000);
                 } else {
                     showMessage("success", "Welcome " + data.name + "!");
