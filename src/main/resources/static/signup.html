@@ -136,7 +136,10 @@
         email: document.getElementById("email").value.trim(),
         password: document.getElementById("password").value.trim()
     };
-
+    if(password.length < 6){
+        showMessage("danger","Password should be of minimum 6 characters);
+        return;
+     }
     fetch(AUTH_URL + "/check-email?email=" + tempUser.email)
         .then(async res => {
             const msg = await res.text();
