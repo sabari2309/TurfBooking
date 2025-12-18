@@ -136,7 +136,7 @@
         email: document.getElementById("email").value.trim(),
         password: document.getElementById("password").value.trim()
     };
-    if(password.length < 6){
+    if(tempUser.password.length < 6){
         showMessage("danger","Password should be of minimum 6 characters);
         return;
      }
