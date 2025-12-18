@@ -106,7 +106,7 @@ public class AuthController {
 
         User u = user.get();
         if(u.getPassword().equals(newPassword)){
-            return ResponseEntity.status(404).body("User not found");
+            return ResponseEntity.status(404).body("New password can't be same as old password");
         }
         u.setPassword(newPassword);
         customerRepository.save(u);
