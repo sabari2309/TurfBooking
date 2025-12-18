@@ -19,31 +19,24 @@
             backdrop-filter: blur(5px);
         }
         #notifyBox {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: auto;
-    min-width: 250px;
-    max-width: 90%;
-    z-index: 9999;
-    padding: 15px 25px;
-    font-size: 18px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-}
-
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            min-width: 250px;
+            z-index: 9999;
+            padding: 15px 25px;
+            font-size: 18px;
+        }
     </style>
 </head>
 
 <body class="p-4">
 
 <!-- GLOBAL MESSAGE BOX -->
-<div id="notifyBox"
-     class="alert text-center d-none"
-     style="position:absolute; top:20px; width:90%; max-width:420px; z-index:999;">
-</div>
+<div id="notifyBox" class="alert text-center d-none"></div>
 
-<!-- SIMPLE DELETE CONFIRMATION BOX -->
+<!-- DELETE CONFIRM BOX -->
 <div id="deleteBox"
      class="alert alert-danger d-none text-center"
      style="position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
@@ -53,14 +46,18 @@
     <button class="btn btn-sm btn-secondary mt-2" onclick="cancelDelete()">No</button>
 </div>
 
+<!-- LOGOUT BUTTON -->
+<div class="d-flex justify-content-end mb-3">
+    <button class="btn btn-outline-danger" onclick="logout()">Logout</button>
+</div>
+
 <div class="container">
     <h2 class="mb-4 text-warning">⚙ Admin Panel - Turf Management</h2>
 
-    <!-- Add Turf Form -->
+    <!-- ADD TURF -->
     <div class="admin-box mb-4">
         <h4>Add New Turf</h4>
         <form id="turfForm">
-
             <div class="mb-3">
                 <label class="form-label">Turf Name</label>
                 <input type="text" class="form-control" id="turfName" required>
@@ -68,13 +65,7 @@
 
             <div class="mb-3">
                 <label class="form-label">Price per Hour</label>
-                <input type="number"
-                       class="form-control"
-                       id="turfPrice"
-                       required
-                       min="1"
-                       step="0.01"
-                       oninput="if(this.value < 1) this.value='';">
+                <input type="number" class="form-control" id="turfPrice" min="1" step="0.01" required>
             </div>
 
             <div class="mb-3">
@@ -88,7 +79,7 @@
             <div class="mb-3">
                 <label class="form-label">Location</label>
                 <select class="form-select" id="location" required>
-                    <option value="" disabled selected>Select Location</option>
+                    <option disabled selected>Select Location</option>
                     <option>Chennai</option>
                     <option>Bengalore</option>
                     <option>Hyderabad</option>
@@ -102,11 +93,11 @@
                 </select>
             </div>
 
-            <button type="submit" class="btn btn-success w-100">Add Turf</button>
+            <button class="btn btn-success w-100">Add Turf</button>
         </form>
     </div>
 
-    <!-- Turf Listing -->
+    <!-- LIST TURFS -->
     <h4 class="text-info">📌 Existing Turfs</h4>
 
     <table class="table table-dark table-bordered mt-3">
@@ -124,33 +115,34 @@
     </table>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
     const BASE_URL = "https://turfbooking-production.up.railway.app/turfs";
-    const role=localStorage.getItem("role");
-    if(role!=="ADMIN"){
-       showMessage("danger", "UnAuthorized Access Login First");
-       window.location.href="login.html";
-    }
+
     function showMessage(type, msg) {
         const box = document.getElementById("notifyBox");
         box.className = `alert alert-${type} text-center`;
         box.innerHTML = msg;
         box.classList.remove("d-none");
-        setTimeout(() => box.classList.add("d-none"), 6000);
+        setTimeout(() => box.classList.add("d-none"), 4000);
+    }
+
+    /* 🔐 ADMIN AUTH GUARD */
+    const role = localStorage.getItem("role");
+    if (role !== "ADMIN") {
+        showMessage("danger", "Unauthorized access. Please login.");
+        setTimeout(() => window.location.href = "login.html", 1500);
     }
 
     document.addEventListener("DOMContentLoaded", fetchTurfs);
 
-    document.getElementById("turfForm").addEventListener("submit", function(event) {
-        event.preventDefault();
+    document.getElementById("turfForm").addEventListener("submit", e => {
+        e.preventDefault();
 
         const turf = {
-            name: document.getElementById("turfName").value,
-            sportType: document.getElementById("sportType").value,
-            location: document.getElementById("location").value,
-            price: document.getElementById("turfPrice").value
+            name: turfName.value,
+            sportType: sportType.value,
+            location: location.value,
+            price: turfPrice.value
         };
 
         fetch(`${BASE_URL}/add`, {
@@ -158,29 +150,21 @@
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(turf)
         })
-        .then(async res => {
-            const text = await res.text();
-            console.log("Server:", text);
-
-            if (res.ok) {
-                showMessage("success", "Turf Added Successfully!");
-                fetchTurfs();
-                document.getElementById("turfForm").reset();
-            } else {
-                showMessage("danger", "Failed to add turf!");
-            }
-        });
+        .then(res => res.ok ? fetchTurfs() : Promise.reject())
+        .then(() => {
+            showMessage("success", "Turf Added Successfully!");
+            turfForm.reset();
+        })
+        .catch(() => showMessage("danger", "Failed to add turf"));
     });
 
     function fetchTurfs() {
-        fetch(`${BASE_URL}`)
+        fetch(BASE_URL)
             .then(res => res.json())
             .then(data => {
-                const table = document.getElementById("turfTable");
-                table.innerHTML = "";
-
+                turfTable.innerHTML = "";
                 data.forEach(turf => {
-                    table.innerHTML += `
+                    turfTable.innerHTML += `
                         <tr>
                             <td>${turf.id}</td>
                             <td>${turf.name}</td>
@@ -191,8 +175,7 @@
                                 <button class="btn btn-warning btn-sm" onclick="editTurf(${turf.id})">Edit</button>
                                 <button class="btn btn-danger btn-sm" onclick="deleteTurf(${turf.id})">Delete</button>
                             </td>
-                        </tr>
-                    `;
+                        </tr>`;
                 });
             });
     }
@@ -201,7 +184,7 @@
 
     function deleteTurf(id) {
         deleteId = id;
-        document.getElementById("deleteBox").classList.remove("d-none");
+        deleteBox.classList.remove("d-none");
     }
 
     function confirmDelete() {
@@ -210,21 +193,22 @@
                 showMessage("success", "Turf Deleted!");
                 fetchTurfs();
             });
-
-        document.getElementById("deleteBox").classList.add("d-none");
-        deleteId = null;
+        deleteBox.classList.add("d-none");
     }
 
     function cancelDelete() {
         deleteId = null;
-        document.getElementById("deleteBox").classList.add("d-none");
+        deleteBox.classList.add("d-none");
     }
 
     function editTurf(id) {
         localStorage.setItem("editTurfId", id);
         window.location.href = "edit-turf.html";
     }
-
+    function logout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+    }
 </script>
 
 </body>
