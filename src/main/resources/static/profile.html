@@ -49,7 +49,7 @@
 
     <div class="top-menu mb-3">
         <h2>👤 Welcome, <span id="userName"></span></h2>
-        <button class="btn btn-danger" onclick="confirmLogout()">Logout</button>
+        <button class="btn btn-danger" onclick="Logout()">Logout</button>
     </div>
 
     <div class="profile-box">
@@ -104,13 +104,7 @@
     if (!userId) {
         window.location.replace("login.html");
     }
-    function confirmLogout() {
-    const confirmAction = confirm("Are you sure you want to logout?");
 
-    if (confirmAction) {
-        logout();
-    }
-   }
     function loadProfile() {
         fetch(`${API_URL}/api/profile/${userId}`)
             .then(res => res.json())
@@ -193,7 +187,7 @@
         rzp.open();
     }
 
-    function logout() {
+    function Logout() {
         localStorage.clear();
         sessionStorage.clear();
 
