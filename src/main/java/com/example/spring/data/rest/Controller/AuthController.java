@@ -105,6 +105,9 @@ public class AuthController {
         }
 
         User u = user.get();
+        if(u.getPassword().equals(newPassword)){
+            return ResponseEntity.status(404).body("User not found");
+        }
         u.setPassword(newPassword);
         customerRepository.save(u);
 
