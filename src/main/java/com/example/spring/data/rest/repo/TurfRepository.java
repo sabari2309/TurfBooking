@@ -7,5 +7,8 @@ import java.util.List;
 
 public interface TurfRepository extends JpaRepository<Turf, Long> {
     List<Turf> findBySportType(String sportType);
+    List<Turf> findByLocationIgnoreCase(String location);
+
+    List<Turf> findByLocationIgnoreCaseAndSportTypeIgnoreCase(String location, String sportType);
 }
 
