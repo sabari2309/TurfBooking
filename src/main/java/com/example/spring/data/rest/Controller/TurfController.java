@@ -67,16 +67,16 @@ public class TurfController {
             repo.save(existing.get());
             return ResponseEntity.ok(Map.of("Message", "Updated Successfully"));
     }
-    @GetMapping("/location/{location}")
-    public List<Turf> getTurfsByLocation(@PathVariable String location) {
-        return repo.findByLocationIgnoreCase(location);
-    }
-
-    @GetMapping("/location/{location}/sport/{sport}")
-    public List<Turf> getTurfsByLocationAndSport(
-            @PathVariable String location,
-            @PathVariable String sport) {
-        return repo.findByLocationIgnoreCaseAndSportTypeIgnoreCase(location, sport);
-    }
+//    @GetMapping("/location/{location}")
+//    public List<Turf> getTurfsByLocation(@PathVariable String location) {
+//        return repo.findByLocationIgnoreCase(location);
+//    }
+//
+//    @GetMapping("/location/{location}/sport/{sport}")
+//    public List<Turf> getTurfsByLocationAndSport(
+//            @PathVariable String location,
+//            @PathVariable String sport) {
+//        return repo.findByLocationIgnoreCaseAndSportTypeIgnoreCase(location, sport);
+//    }
 }
 
