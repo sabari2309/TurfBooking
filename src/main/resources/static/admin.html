@@ -144,6 +144,8 @@
             location: location.value,
             price: turfPrice.value
         };
+         console.log("Turf data to send:", turf);
+         console.log("Location value:", location.value);
 
         fetch(`${BASE_URL}/add`, {
             method: "POST",
