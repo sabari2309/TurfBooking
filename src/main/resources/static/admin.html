@@ -78,7 +78,7 @@
 
             <div class="mb-3">
                 <label class="form-label">Location</label>
-                <select class="form-select" id="location" required>
+                <select class="form-select" id="turfLocation" required>
                     <option value="" disabled selected>Select Location</option>
                     <option value="Chennai">Chennai</option>
                     <option value="Bengaluru">Bengaluru</option>
@@ -141,7 +141,7 @@
         const turf = {
             name: turfName.value,
             sportType: sportType.value,
-            location: location.value,
+            location: turfLocation.value,
             price: turfPrice.value
         };
          console.log("Turf data to send:", turf);
